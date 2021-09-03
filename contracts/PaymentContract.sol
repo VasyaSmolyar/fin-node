@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.5.16;
+pragma experimental ABIEncoderV2;
 
 contract PaymentContract {
 
@@ -19,7 +20,12 @@ contract PaymentContract {
     uint endShare,
     uint startTime,
     uint endTime
-  ) public {
+  ) public returns (bool) {
+    for (uint i = 0; i < deals.length; i++) {
+      if(deals[i].id == id) {
+        return false;
+      }
+    }
     deals.push(Deal({
       id: id,
       startShare: startShare,
@@ -27,6 +33,17 @@ contract PaymentContract {
       startTime: startTime,
       endTime: endTime
     }));
+    return true;
+  }
+
+  function find (
+    uint id
+  ) public view returns (Deal memory) {
+    for (uint i = 0; i < deals.length; i++) {
+      if(deals[i].id == id) {
+        return deals[i];
+      }
+    }
   }
 
   function getShare (
