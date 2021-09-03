@@ -50,7 +50,7 @@ app.get("/contract/create", async function(request, response) {
     const endTime = Date.parse(request.query.endTime);
     
     if(isNaN(startTime) || isNaN(endTime)) {
-      response.status(403).send({ error: 'Timestamps have wrong format.'});
+      response.status(400).send({ error: 'Timestamps have wrong format.'});
     }
 
     const gas = await PaymentContract.methods.create(id, startShare, endShare, startTime, endTime).estimateGas();
@@ -73,9 +73,38 @@ app.get("/contract/find", async function(request, response) {
     const id = request.query.id;
 
     const result = await PaymentContract.methods.find(id).call();
+    if(result[0] === "0") {
+      response.status(404).send({ error: "Not found" });
+      return;
+    }
 
     response.send({
       result: result
+    })
+  } catch(e) {
+    response.status(500).send({ error: e.name + ": " + e.message });
+  }
+});
+
+app.get("/contract/check", async function(request, response) {
+  try {
+    const id = request.query.id;
+    const timeStamp = Date.parse(request.query.timeStamp);
+
+    if(isNaN(timeStamp)) {
+      response.status(400).send({ error: 'Timestamp have wrong format.'});
+      return;
+    }
+
+    const deal = await PaymentContract.methods.find(id).call();
+    if(deal[0] === "0") {
+      response.status(404).send({ error: "Not found" });
+    }
+
+    const result = await PaymentContract.methods.getShare(id, timeStamp).call();
+
+    response.send({
+      result: result / 100
     })
   } catch(e) {
     response.status(500).send({ error: e.name + ": " + e.message });
