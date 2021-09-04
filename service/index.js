@@ -117,4 +117,16 @@ app.get("/contract/check", async function(request, response) {
   }
 });
 
+app.get("/wallet/create", async function(request, response) {
+  try {
+    const account = web3.eth.accounts.create();
+    
+    response.send({
+      result: account
+    })
+  } catch(e) {
+    response.status(500).send({ error: e.name + ": " + e.message });
+  }
+})
+
 app.listen(9000, () => console.log('Finance node started!'));
