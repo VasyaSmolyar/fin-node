@@ -41,6 +41,28 @@ app.get("/send", async function(request, response) {
   }
 });
 
+app.get("/receive", async function(request, response) {
+  try {
+    const privateKey = request.query.privateKey;
+    const amount = request.query.amount;
+
+    const sender = web3.eth.accounts.privateKeyToAccount(privateKey);
+
+    const gas = await TokenContract.methods.transferFrom(sender.address, account.address, amount).estimateGas();
+
+    const result = await TokenContract.methods.transferFrom(sender.address, account.address, amount).send({
+      from: account.address,
+      gas
+    });
+
+    response.send({
+      result: result
+    })
+  } catch(e) {
+    response.status(500).send({ error: e.name + ": " + e.message });
+  }
+})
+
 app.get("/contract/create", async function(request, response) {
   try {
     const id = request.query.id;
@@ -120,9 +142,23 @@ app.get("/contract/check", async function(request, response) {
 app.get("/wallet/create", async function(request, response) {
   try {
     const account = web3.eth.accounts.create();
-    
+
     response.send({
       result: account
+    })
+  } catch(e) {
+    response.status(500).send({ error: e.name + ": " + e.message });
+  }
+})
+
+app.get("/wallet/balance", async function(request, response) {
+  try {
+    const address = request.query.address;
+
+    const result = await TokenContract.methods.balanceOf(address).call();
+
+    response.send({
+      result: result
     })
   } catch(e) {
     response.status(500).send({ error: e.name + ": " + e.message });
