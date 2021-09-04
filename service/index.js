@@ -79,7 +79,13 @@ app.get("/contract/find", async function(request, response) {
     }
 
     response.send({
-      result: result
+      result: {
+        id: result[0],
+        startShare: result[1], 
+        endShare: result[2], 
+        startTime: result[3], 
+        endTime: result[4]
+      }
     })
   } catch(e) {
     response.status(500).send({ error: e.name + ": " + e.message });
@@ -104,7 +110,7 @@ app.get("/contract/check", async function(request, response) {
     const result = await PaymentContract.methods.getShare(id, timeStamp).call();
 
     response.send({
-      result: result / 100
+      result: result / 100000
     })
   } catch(e) {
     response.status(500).send({ error: e.name + ": " + e.message });

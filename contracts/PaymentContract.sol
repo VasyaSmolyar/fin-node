@@ -54,7 +54,9 @@ contract PaymentContract {
       if(deals[i].id == id) {
         // Автоматически переводим в проценты с ошибкой округления в 0.01%
         uint totalShare = (deals[i].endTime - timeStamp) / ((deals[i].endTime - deals[i].startTime) / 10000);
-        return totalShare * 100;
+        // Траснпонируем точку с отрезка 0 - 1 на отрезок endShare - startShare
+        uint share = ((deals[i].startShare - deals[i].endShare) * totalShare) / 10000 + deals[i].endShare;
+        return share * 100;
       }
     }
   }
